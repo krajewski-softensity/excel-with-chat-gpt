@@ -1,0 +1,153 @@
+﻿@model CrmToRecruit.ExcelData
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>ExcelData</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.RecordId)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.RecordId)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.AccountName)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.AccountName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.DealName)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.DealName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.DealOwner)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.DealOwner)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.NumberOfResources)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.NumberOfResources)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.StageOfOpen)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.StageOfOpen)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.StageOfClosed)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.StageOfClosed)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.JobOpeningCreationDate)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.JobOpeningCreationDate)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.LastActivityTime)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.LastActivityTime)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.MustHaveSkills)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.MustHaveSkills)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.NiceToHaveSkills)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.NiceToHaveSkills)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ProjectDescription)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ProjectDescription)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.RMOwnership)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.RMOwnership)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.NotesPriority)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.NotesPriority)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.SubmittedST)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.SubmittedST)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.SubmittedVendor)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.SubmittedVendor)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.InterviewedST)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.InterviewedST)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.InterviewedVendor)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.InterviewedVendor)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ConfirmedST)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ConfirmedST)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ConfirmedVendor)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ConfirmedVendor)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.RejectedST)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.RejectedST)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.RejectedVendor)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.RejectedVendor)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>

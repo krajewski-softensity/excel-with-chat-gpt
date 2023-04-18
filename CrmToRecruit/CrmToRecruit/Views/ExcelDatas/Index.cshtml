@@ -1,0 +1,161 @@
+﻿@model IEnumerable<CrmToRecruit.ExcelData>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.RecordId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AccountName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DealName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DealOwner)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NumberOfResources)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StageOfOpen)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StageOfClosed)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.JobOpeningCreationDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastActivityTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MustHaveSkills)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NiceToHaveSkills)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProjectDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RMOwnership)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NotesPriority)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SubmittedST)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SubmittedVendor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.InterviewedST)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.InterviewedVendor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ConfirmedST)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ConfirmedVendor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RejectedST)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RejectedVendor)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.RecordId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AccountName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DealName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DealOwner)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NumberOfResources)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StageOfOpen)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StageOfClosed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.JobOpeningCreationDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastActivityTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MustHaveSkills)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NiceToHaveSkills)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProjectDescription)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RMOwnership)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NotesPriority)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SubmittedST)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SubmittedVendor)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.InterviewedST)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.InterviewedVendor)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ConfirmedST)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ConfirmedVendor)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RejectedST)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RejectedVendor)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

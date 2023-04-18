@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33424.131
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrmToRecruit", "CrmToRecruit\CrmToRecruit.csproj", "{2DFD273A-98FE-4DFA-B39E-6CD313881EED}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2DFD273A-98FE-4DFA-B39E-6CD313881EED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DFD273A-98FE-4DFA-B39E-6CD313881EED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DFD273A-98FE-4DFA-B39E-6CD313881EED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DFD273A-98FE-4DFA-B39E-6CD313881EED}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {60170B47-8CFB-45AB-A8CF-A3E82262C122}
+	EndGlobalSection
+EndGlobal
