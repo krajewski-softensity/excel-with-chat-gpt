@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace CrmToRecruit
+namespace CrmToRecruit.Domain
 {
     public class ExcelData
     {

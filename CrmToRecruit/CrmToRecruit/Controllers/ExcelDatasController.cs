@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using CrmToRecruit;
 using OfficeOpenXml;
+using CrmToRecruit.Domain;
+using CrmToRecruit.Services;
 
 namespace CrmToRecruit.Controllers
 {
@@ -15,10 +16,12 @@ namespace CrmToRecruit.Controllers
     public class ExcelDataController : ControllerBase
     {
         private readonly MyDbContext _context;
+        private readonly IService _service;
 
-        public ExcelDataController(MyDbContext context)
+        public ExcelDataController(MyDbContext context, IService service)
         {
             _context = context;
+            _service = service;
         }
 
         // GET: api/ExcelData
@@ -98,6 +101,25 @@ namespace CrmToRecruit.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpPost("uploadwithmapping")]
+        public async Task<IActionResult> ReadExcelFile(IFormFile file)
+        {
+            if (file == null || file.Length <= 0)
+            {
+                return BadRequest("Invalid file");
+            }
+
+            if (Path.GetExtension(file.FileName) != ".xlsx")
+            {
+                return BadRequest("Invalid file format");
+            }
+
+            var stream = file.OpenReadStream();
+            var crmToRecruitList = await _service.ReadExcelFile(stream);
+
+            return Ok(crmToRecruitList);
         }
 
         [HttpPost("upload")]

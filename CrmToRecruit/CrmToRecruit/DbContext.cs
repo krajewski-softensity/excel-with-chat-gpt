@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CrmToRecruit.Domain;
+using Microsoft.EntityFrameworkCore;
 
 namespace CrmToRecruit
 {
     public class MyDbContext : DbContext
     {
         public DbSet<ExcelData> ExcelData { get; set; }
+        public DbSet<CrmToRecruitEntity> CrmToRecruitEntities { get; set; }
 
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options)
         {

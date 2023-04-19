@@ -1,0 +1,112 @@
+[
+  {
+    "ExcelColumnName": "Record Id",
+    "PropertyName": "RecordId",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Account Name",
+    "PropertyName": "AccountName",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Deal Name",
+    "PropertyName": "DealName",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Deal Owner",
+    "PropertyName": "DealOwner",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Number of Resources",
+    "PropertyName": "NumberOfResources",
+    "DataType": "int"
+  },
+  {
+    "ExcelColumnName": "Stage of open",
+    "PropertyName": "StageOfOpen",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Stage of Closed",
+    "PropertyName": "StageOfClosed",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Job Opening Creation Date",
+    "PropertyName": "JobOpeningCreationDate",
+    "DataType": "DateTime"
+  },
+  {
+    "ExcelColumnName": "Last Activity Time",
+    "PropertyName": "LastActivityTime",
+    "DataType": "DateTime"
+  },
+  {
+    "ExcelColumnName": "Must have Skills",
+    "PropertyName": "MustHaveSkills",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Nice to have Skills",
+    "PropertyName": "NiceToHaveSkills",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Project description",
+    "PropertyName": "ProjectDescription",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "RM Ownership",
+    "PropertyName": "RmOwnership",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Notes / Priority",
+    "PropertyName": "NotesPriority",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Submitted ST",
+    "PropertyName": "SubmittedSt",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Submitted Vendor",
+    "PropertyName": "SubmittedVendor",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Interviewed ST",
+    "PropertyName": "InterviewedSt",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Interviewed Vendor",
+    "PropertyName": "InterviewedVendor",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Confirmed ST",
+    "PropertyName": "ConfirmedSt",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Confirmed Vendor",
+    "PropertyName": "ConfirmedVendor",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Rejected ST",
+    "PropertyName": "RejectedSt",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Rejected Vendor",
+    "PropertyName": "RejectedVendor",
+    "DataType": "string"
+  }
+]
