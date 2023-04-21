@@ -8,6 +8,8 @@ namespace CrmToRecruit
         public DbSet<ExcelData> ExcelData { get; set; }
         public DbSet<CrmToRecruitEntity> CrmToRecruitEntities { get; set; }
 
+        public DbSet<ClosedDealsEntity> ClosedDeals { get; set; }
+
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options)
         {
         }

@@ -18,7 +18,7 @@ namespace CrmToRecruit.Services
         {
             _repository = repository;
         }
-        public async Task<List<CrmToRecruitDto>> ReadExcelFile(Stream stream)
+        public async Task<List<CrmToRecruitDto>> ReadExcelFileCrmToRecruit(Stream stream)
         {
             var crmToRecruitList = new List<CrmToRecruitDto>();
 
@@ -30,7 +30,7 @@ namespace CrmToRecruit.Services
                 throw new Exception("Excel file has no worksheets");
             }
 
-            var mappingJson = await File.ReadAllTextAsync("mapping.json");
+            var mappingJson = await File.ReadAllTextAsync("mapping_file1.json");
             var mappings = JsonConvert.DeserializeObject<List<ExcelColumnMapping>>(mappingJson);
 
             for (var row = 2; row <= worksheet.Dimension.End.Row; row++)
@@ -56,9 +56,10 @@ namespace CrmToRecruit.Services
                             }
                             break;
                         case "datetime":
-                            if (DateTime.TryParse(cellValue?.ToString(), out var dateTimeValue))
+                            if (double.TryParse(cellValue?.ToString(), out var doubleValue))
                             {
-                                crmToRecruit.GetType().GetProperty(mapping.PropertyName)?.SetValue(crmToRecruit, dateTimeValue);
+                                var finalDate = DateTime.FromOADate(doubleValue);
+                                crmToRecruit.GetType().GetProperty(mapping.PropertyName)?.SetValue(crmToRecruit, finalDate);
                             }
                             break;
                     }
@@ -69,6 +70,65 @@ namespace CrmToRecruit.Services
 
             await _repository.SaveCrmToRecruitList(crmToRecruitList);
             return crmToRecruitList;
+        }
+
+        public async Task<List<ClosedDealsDto>> ReadExcelFileClosedDeals(Stream stream)
+        {
+            var dealsList = new List<ClosedDealsDto>();
+
+            using var package = new ExcelPackage(stream);
+
+            var worksheet = package.Workbook.Worksheets.FirstOrDefault();
+            if (worksheet == null)
+            {
+                throw new Exception("Excel file has no worksheets");
+            }
+
+            var mappingJson = await File.ReadAllTextAsync("mapping_file2.json");
+            var mappings = JsonConvert.DeserializeObject<List<ExcelColumnMapping>>(mappingJson);
+
+            for (var row = 2; row <= worksheet.Dimension.End.Row; row++)
+            {
+                var deal = new ClosedDealsDto();
+
+                foreach (var mapping in mappings)
+                {
+                    var columnIndex = worksheet.Cells["1:1"]
+                                        .First(c => c.Value.ToString() == mapping.ExcelColumnName).Start.Column;
+
+                    var cellValue = worksheet.Cells[row, columnIndex].Value;
+
+                    switch (mapping.DataType.ToLower())
+                    {
+                        case "string":
+                            deal.GetType().GetProperty(mapping.PropertyName)?.SetValue(deal, cellValue?.ToString());
+                            break;
+                        case "int":
+                            if (int.TryParse(cellValue?.ToString(), out var intValue))
+                            {
+                                deal.GetType().GetProperty(mapping.PropertyName)?.SetValue(deal, intValue);
+                            }
+                            break;
+                        case "datetime":
+                            if (double.TryParse(cellValue?.ToString(), out var doubleValue))
+                            {
+                                var finalDate = DateTime.FromOADate(doubleValue);
+                                deal.GetType().GetProperty(mapping.PropertyName)?.SetValue(deal, finalDate);
+                            }
+                            break;
+                    }
+                }
+
+                dealsList.Add(deal);
+            }
+
+            await _repository.SaveClosedDealsList(dealsList);
+            return dealsList;
+        }
+
+        public async Task<List<ClosedDealsReportDto>> GenerateMonthlyReport()
+        {
+            return await _repository.GenerateMonthlyReport();
         }
     }
 }

@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using CrmToRecruit.Domain;
 using CrmToRecruit.Services;
+using OfficeOpenXml.Style;
+using OfficeOpenXml.Table;
+using System.Net.Mime;
+using System.Globalization;
 
 namespace CrmToRecruit.Controllers
 {
@@ -117,9 +121,28 @@ namespace CrmToRecruit.Controllers
             }
 
             var stream = file.OpenReadStream();
-            var crmToRecruitList = await _service.ReadExcelFile(stream);
+            var crmToRecruitList = await _service.ReadExcelFileCrmToRecruit(stream);
 
             return Ok(crmToRecruitList);
+        }
+
+        [HttpPost("uploadcloseddeals")]
+        public async Task<IActionResult> ReadExcelFileClosedDeals(IFormFile file)
+        {
+            if (file == null || file.Length <= 0)
+            {
+                return BadRequest("Invalid file");
+            }
+
+            if (Path.GetExtension(file.FileName) != ".xlsx")
+            {
+                return BadRequest("Invalid file format");
+            }
+
+            var stream = file.OpenReadStream();
+            var response = await _service.ReadExcelFileClosedDeals(stream);
+
+            return Ok(response);
         }
 
         [HttpPost("upload")]
@@ -160,7 +183,7 @@ namespace CrmToRecruit.Controllers
                         RecordId = recordId ?? "",
                         AccountName = accountName ?? "",
                         DealName = dealName ?? "",
-                        DealOwner = dealOwner?? "",
+                        DealOwner = dealOwner ?? "",
                         NumberOfResources = numberOfResources,
                         StageOfOpen = stageOfOpen ?? "",
                         StageOfClosed = stageOfClosed ?? "",
@@ -194,6 +217,169 @@ namespace CrmToRecruit.Controllers
         {
             return _context.ExcelData.Any(e => e.Id == id);
         }
-    }
 
+        [HttpGet("downloadreport/vertical")]
+        public async Task<IActionResult> DownloadClosedDealsReportAsync()
+        {
+            // Get the Closed Deals report data from the repository
+            var reportData = await _service.GenerateMonthlyReport();
+
+            // Create the Excel package
+            using (var package = new ExcelPackage())
+            {
+                // Add a new worksheet to the Excel package
+                var worksheet = package.Workbook.Worksheets.Add("Closed Deals Report");
+
+                // Write the headers to the worksheet
+                worksheet.Cells[1, 1].Value = "Month/Year";
+                worksheet.Cells[1, 2].Value = "Closed (Won)";
+                worksheet.Cells[1, 3].Value = "Closed (Lost)";
+
+                // Write the report data to the worksheet
+                var row = 2;
+                foreach (var data in reportData)
+                {
+                    worksheet.Cells[row, 1].Value = data.MonthYear;
+                    worksheet.Cells[row, 2].Value = data.ClosedWonCount;
+                    worksheet.Cells[row, 3].Value = data.ClosedLostCount;
+                    row++;
+                }
+
+                // Set the column widths for the worksheet
+                worksheet.Column(1).Width = 15;
+                worksheet.Column(2).Width = 15;
+                worksheet.Column(3).Width = 15;
+
+                // Set the content type and file name for the response
+                var contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                var fileName = "ClosedDealsReport.xlsx";
+
+                // Convert the Excel package to a byte array
+                var fileBytes = package.GetAsByteArray();
+
+                // Return the Excel file as a file download
+                return File(fileBytes, contentType, fileName);
+            }
+        }
+
+        [HttpGet("downloadreport/horizontal2")]
+        public IActionResult DownloadClosedDealsReport2()
+        {
+            var reportData = _service.GenerateMonthlyReport().Result;
+
+            using var package = new ExcelPackage();
+            var worksheet = package.Workbook.Worksheets.Add("Dashboard");
+
+            // Add header row
+            worksheet.Cells[1, 1].Value = "Closed roles by Month";
+            for (var i = 0; i < 12; i++)
+            {
+                var date = new DateTime(2023, i + 1, 1);
+                worksheet.Cells[1, i + 2].Value = date.ToString("MMM. yy", CultureInfo.InvariantCulture);
+            }
+            worksheet.Cells[1, 14].Value = "Totals 23'";
+
+            // Add Closed (Won) row
+            worksheet.Cells[2, 1].Value = "Closed (Won)";
+            for (var i = 0; i < 12; i++)
+            {
+                var date = new DateTime(2023, i + 1, 1);
+                var value = reportData.FirstOrDefault(x => x.MonthYear == date.ToString("MMM. yy"));
+                if (value != null)
+                {
+                    worksheet.Cells[2, i + 2].Value = value.ClosedWonCount;
+                }
+            }
+            worksheet.Cells[2, 14].Formula = "SUM(B2:M2)";
+
+            // Add Closed (Lost) row
+            worksheet.Cells[3, 1].Value = "Closed (Lost)";
+            for (var i = 0; i < 12; i++)
+            {
+                var date = new DateTime(2023, i + 1, 1);
+                var value = reportData.FirstOrDefault(x => x.MonthYear == date.ToString("MMM. yy"));
+                if (value != null)
+                {
+                    worksheet.Cells[3, i + 2].Value = value.ClosedLostCount;
+                }
+            }
+            worksheet.Cells[3, 14].Formula = "SUM(B3:M3)";
+
+            // Set header row and Closed (Won) row as bold
+            worksheet.Cells[1, 1, 1, 14].Style.Font.Bold = true;
+            worksheet.Cells[2, 1, 2, 14].Style.Font.Bold = true;
+
+            // Auto-fit columns
+            worksheet.Cells.AutoFitColumns();
+
+            // Convert package to byte array
+            var fileBytes = package.GetAsByteArray();
+
+            // Download file
+            var contentDisposition = new ContentDisposition
+            {
+                FileName = "ClosedDealsReport.xlsx",
+                Inline = false
+            };
+            Response.Headers.Add("Content-Disposition", contentDisposition.ToString());
+            return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        }
+
+
+        [HttpGet("cdownloadreport/horizontal")]
+        public async Task<IActionResult> DownloadClosedDealsReport()
+        {
+            var reportData = await _service.GenerateMonthlyReport();
+
+            // Transpose the report data
+            var transposedData = new List<object[]>();
+
+            foreach (var data in reportData)
+            {
+                if (transposedData.Count == 0)
+                {
+                    transposedData.Add(new object[] { "", "Closed (Won)", "Closed (Lost)" });
+                }
+
+                var monthYear = data.MonthYear;
+                var closedWonCount = data.ClosedWonCount;
+                var closedLostCount = data.ClosedLostCount;
+
+                transposedData.Add(new object[] { monthYear, closedWonCount, closedLostCount });
+            }
+
+            using var package = new ExcelPackage();
+            var worksheet = package.Workbook.Worksheets.Add("Closed Deals Report");
+
+            // Write the transposed data to the worksheet
+            for (var row = 1; row <= transposedData.Count; row++)
+            {
+                for (var col = 1; col <= transposedData[row - 1].Length; col++)
+                {
+                    worksheet.Cells[row, col].Value = transposedData[row - 1][col - 1];
+                }
+            }
+
+            // Set the column widths
+            worksheet.Column(1).Width = 20;
+            worksheet.Column(2).Width = 15;
+            worksheet.Column(3).Width = 15;
+
+            // Set the header styles
+            var headerRange = worksheet.Cells[1, 1, 1, 3];
+            headerRange.Style.Font.Bold = true;
+            headerRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+            // Set the number format for the count columns
+            var countRange = worksheet.Cells[2, 2, transposedData.Count, 3];
+            countRange.Style.Numberformat.Format = "#,##0";
+
+            // Return the Excel file as a byte array
+            var fileContents = package.GetAsByteArray();
+            var fileName = "ClosedDealsReport.xlsx";
+
+            return File(fileContents, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+
+    }
 }

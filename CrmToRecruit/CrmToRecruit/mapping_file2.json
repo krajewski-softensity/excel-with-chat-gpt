@@ -1,0 +1,62 @@
+[
+  {
+    "ExcelColumnName": "Record Id",
+    "PropertyName": "RecordId",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Deal Owner",
+    "PropertyName": "DealOwner",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Deal Name",
+    "PropertyName": "DealName",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Account Name",
+    "PropertyName": "AccountName",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Stage",
+    "PropertyName": "Stage",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Modified Time",
+    "PropertyName": "ModifiedTime",
+    "DataType": "datetime"
+  },
+  {
+    "ExcelColumnName": "Job Opening Creation Date",
+    "PropertyName": "JobOpeningCreationDate",
+    "DataType": "datetime"
+  },
+  {
+    "ExcelColumnName": "Closing Date",
+    "PropertyName": "ClosingDate",
+    "DataType": "datetime"
+  },
+  {
+    "ExcelColumnName": "Number of Roles",
+    "PropertyName": "NumberOfRoles",
+    "DataType": "int"
+  },
+  {
+    "ExcelColumnName": "Number of Resources",
+    "PropertyName": "NumberOfResources",
+    "DataType": "int"
+  },
+  {
+    "ExcelColumnName": "Loss Reason",
+    "PropertyName": "LossReason",
+    "DataType": "string"
+  },
+  {
+    "ExcelColumnName": "Loss Description",
+    "PropertyName": "LossDescription",
+    "DataType": "string"
+  }
+]

@@ -1,4 +1,6 @@
 ﻿using CrmToRecruit.Domain;
+using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,6 +47,74 @@ namespace CrmToRecruit.Repositories
 
             await _dbContext.CrmToRecruitEntities.AddRangeAsync(entities);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task SaveClosedDealsList(List<ClosedDealsDto> closedDealsList)
+        {
+            var closedDealsEntities = new List<ClosedDealsEntity>();
+
+            foreach (var closedDeal in closedDealsList)
+            {
+                var closedDealEntity = new ClosedDealsEntity
+                {
+                    RecordId = closedDeal.RecordId,
+                    DealOwner = closedDeal.DealOwner,
+                    DealName = closedDeal.DealName,
+                    AccountName = closedDeal.AccountName,
+                    Stage = closedDeal.Stage,
+                    ModifiedTime = closedDeal.ModifiedTime,
+                    JobOpeningCreationDate = closedDeal.JobOpeningCreationDate,
+                    ClosingDate = closedDeal.ClosingDate,
+                    NumberOfRoles = closedDeal.NumberOfRoles,
+                    NumberOfResources = closedDeal.NumberOfResources,
+                    LossReason = closedDeal.LossReason,
+                    LossDescription = closedDeal.LossDescription
+                };
+
+                closedDealsEntities.Add(closedDealEntity);
+            }
+
+            _dbContext.ClosedDeals.AddRange(closedDealsEntities);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<List<ClosedDealsEntity>> GetAll()
+        {
+            return await _dbContext.ClosedDeals.ToListAsync();
+        }
+
+        public async Task<List<ClosedDealsReportDto>> GenerateMonthlyReport()
+        {
+            var startDate = new DateTime(DateTime.Now.Year, 1, 1);
+            var endDate = startDate.AddYears(1);
+
+            var reportData = new List<ClosedDealsReportDto>();
+
+            for (var date = startDate; date < endDate; date = date.AddMonths(1))
+            {
+                var monthYear = date.ToString("MMM. yy");
+
+                var closedWonCount = await _dbContext.ClosedDeals
+                    .Where(cd => cd.Stage == "Closed (Won)")
+                    .Where(cd => cd.ClosingDate.HasValue && cd.ClosingDate.Value.Year == date.Year && cd.ClosingDate.Value.Month == date.Month)
+                    .CountAsync();
+
+                var closedLostCount = await _dbContext.ClosedDeals
+                    .Where(cd => cd.Stage == "Closed (Lost)")
+                    .Where(cd => cd.ClosingDate.HasValue && cd.ClosingDate.Value.Year == date.Year && cd.ClosingDate.Value.Month == date.Month)
+                    .CountAsync();
+
+                var reportItem = new ClosedDealsReportDto
+                {
+                    MonthYear = monthYear,
+                    ClosedWonCount = closedWonCount,
+                    ClosedLostCount = closedLostCount
+                };
+
+                reportData.Add(reportItem);
+            }
+
+            return reportData;
         }
     }
 }

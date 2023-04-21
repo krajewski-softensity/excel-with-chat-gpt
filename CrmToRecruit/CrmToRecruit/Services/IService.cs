@@ -4,6 +4,8 @@ namespace CrmToRecruit.Services
 {
     public interface IService
     {
-        public Task<List<CrmToRecruitDto>> ReadExcelFile(Stream stream);
+        public Task<List<CrmToRecruitDto>> ReadExcelFileCrmToRecruit(Stream stream);
+        public Task<List<ClosedDealsDto>> ReadExcelFileClosedDeals(Stream stream);
+        public Task<List<ClosedDealsReportDto>> GenerateMonthlyReport();
     }
 }
