@@ -12,6 +12,11 @@ using OfficeOpenXml.Style;
 using OfficeOpenXml.Table;
 using System.Net.Mime;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Composition;
+using System.Drawing;
+using System.Net;
+using System.Runtime.Serialization;
 
 namespace CrmToRecruit.Controllers
 {
@@ -307,10 +312,102 @@ namespace CrmToRecruit.Controllers
 
             // Set header row and Closed (Won) row as bold
             worksheet.Cells[1, 1, 1, 14].Style.Font.Bold = true;
-            worksheet.Cells[2, 1, 2, 14].Style.Font.Bold = true;
+
+            // Add a table to the worksheet and format it
+            var tableRange = worksheet.Cells[1, 1, 3, 14];
+            var table = worksheet.Tables.Add(tableRange, "ClosedDealsReport");
+            table.TableStyle = TableStyles.Medium2;
+
+            //---------------------------------------------------------------------------------
+
+            var lossReasonCounts = _service.GetClosedDealsLossReasons();
+
+            // Add the second table with loss reasons data
+            var lossReasonTopHeader = new[] { "Closed (Lost) - details" };
+            worksheet.Cells["O1"].Value = lossReasonTopHeader;
+            worksheet.Cells["O1"].Style.Font.Bold = true;
+            worksheet.Cells["O1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            worksheet.Cells["O1:U1"].Merge = true;
+
+            var lossReasonsHeader = new[] { "Canceled", "Competitor", "Cost", "Couldn’t find", "Diff direction", "Filled by client" };
+            var lossReasonsValues = lossReasonCounts.Result.Select(x => x.ToString()).ToArray();
+            var lossReasonsRange = worksheet.Cells["O2"].LoadFromArrays( new[] { lossReasonsHeader }.Concat(new[] { lossReasonsValues }));
+           
+            
+            var lossReasonsTable = worksheet.Tables.Add(lossReasonsRange, "ClosedDealsLossReasonsTable");
+            lossReasonsTable.TableStyle = TableStyles.Light16;
+            lossReasonsTable.TableBorderStyle.BorderAround(ExcelBorderStyle.Dashed);
 
             // Auto-fit columns
             worksheet.Cells.AutoFitColumns();
+
+            //---------------------------------------------------------------------------------
+
+            CultureInfo ci = CultureInfo.CurrentCulture;
+            Calendar cal = ci.Calendar;
+            var currentWeekNumber = cal.GetWeekOfYear(DateTime.Now, ci.DateTimeFormat.CalendarWeekRule, ci.DateTimeFormat.FirstDayOfWeek);
+
+            var weeks = Enumerable.Range(1, currentWeekNumber).ToList();
+            var weekSheets = new List<(int weekNumber, ExcelWorksheet worksheet)>();
+
+            foreach (var weekNumber in weeks)
+            {
+                var openDeals = _service.GetOpenDealsByWeek(weekNumber).Result;
+
+                if (openDeals.Count > 0)
+                {
+                    var worksheetPerWeek = package.Workbook.Worksheets.Add(GetTabNameByWeek(weekNumber));
+                    weekSheets.Add((weekNumber, worksheetPerWeek));
+
+                    // Set header row
+                    var headers = new string[] { "Record ID","Account Name","Deal Name","Deal Owner","QTY","Stage","Job Opening Date","Aging","RM Ownership" };
+                    var headerRange = worksheetPerWeek.Cells["A1:G1"];
+                    //headerRange.Merge = true;
+                    headerRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    headerRange.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    headerRange.Style.Font.Bold = true;
+                    headerRange.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    headerRange.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                    headerRange.Style.Border.BorderAround(ExcelBorderStyle.Thin);
+
+                    headerRange.LoadFromArrays(new[] { headers });
+
+                    // Load data rows
+                    var data = openDeals.Select(c => new object[] {
+                        c.RecordId,
+                        c.AccountName,
+                        c.DealName,
+                        c.DealOwner,
+                        c.StageOfOpen,
+                        c.NumberOfResources?.ToString(),
+                        c.JobOpeningCreationDate.Value.ToLongDateString(),
+                        GetAgeByDateTimeAndWeek(c.JobOpeningCreationDate.Value, weekNumber),
+                        c.RmOwnership
+                    }).ToList();
+
+                    var dataRange = worksheetPerWeek.Cells["A2:G" + (data.Count + 1)];
+                    dataRange.LoadFromArrays(data);
+
+                    // Apply borders to data rows
+                    dataRange.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    dataRange.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    dataRange.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    dataRange.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+
+                    // Auto-fit columns
+                    worksheetPerWeek.Cells.AutoFitColumns();
+                }
+            }
+
+            // Move week sheets to the left of the Dashboard sheet
+            var dashboardSheet = package.Workbook.Worksheets["Dashboard"];
+            foreach (var weekSheet in weekSheets)
+            {
+                //weekSheet.worksheet.Hidden = eWorkSheetHidden.VeryHidden;
+                //package.Workbook.Worksheets.MoveBefore(weekSheet.weekNumber.ToString(), dashboardSheet.Name);
+            }
+
+            //---------------------------------------------------------------------------------
 
             // Convert package to byte array
             var fileBytes = package.GetAsByteArray();
@@ -321,10 +418,34 @@ namespace CrmToRecruit.Controllers
                 FileName = "ClosedDealsReport.xlsx",
                 Inline = false
             };
+
             Response.Headers.Add("Content-Disposition", contentDisposition.ToString());
             return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
 
+        private int GetAgeByDateTimeAndWeek(DateTime dateTime, int weekNumber)
+        {
+            DayOfWeek firstDayOfWeek = DayOfWeek.Monday; // Assuming Monday is the first day of the week
+
+            DateTime jan1 = new DateTime(2023, 1, 1);
+            int daysOffset = (int)firstDayOfWeek - (int)jan1.DayOfWeek;
+
+            DateTime firstWeekDay = jan1.AddDays(daysOffset + (weekNumber - 1) * 7);
+
+            TimeSpan diff = firstWeekDay - dateTime;
+            return diff.Days;
+        }
+
+        private string GetTabNameByWeek(int weekNumber)
+        {
+            DateTime jan1 = new DateTime(DateTime.Now.Year, 1, 1);
+            int daysOffset = (int)DayOfWeek.Monday - (int)jan1.DayOfWeek;
+
+            DateTime firstWeekDay = jan1.AddDays(daysOffset + (weekNumber - 1) * 7);
+            DateTime lastWeekDay = firstWeekDay.AddDays(6);
+
+            return "WE " + lastWeekDay.ToString("MM.dd");
+        }
 
         [HttpGet("cdownloadreport/horizontal")]
         public async Task<IActionResult> DownloadClosedDealsReport()

@@ -130,5 +130,16 @@ namespace CrmToRecruit.Services
         {
             return await _repository.GenerateMonthlyReport();
         }
+
+        public async Task<List<int>> GetClosedDealsLossReasons() 
+        {
+            return await _repository.GetClosedDealsLossReasons();
+        }
+
+
+        public async Task<List<CrmToRecruitEntity>> GetOpenDealsByWeek(int weekNumber)
+        {
+            return await _repository.GetOpenDealsByWeek(weekNumber);
+        }
     }
 }

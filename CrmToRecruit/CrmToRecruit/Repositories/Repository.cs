@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -116,6 +117,109 @@ namespace CrmToRecruit.Repositories
 
             return reportData;
         }
+
+        private (DateTime startDate, DateTime endDate) GetStartAndEndDateForWeek(int weekNumber)
+        {
+            // Calculate the first day of the year
+            var jan1 = new DateTime(2023, 1, 1);
+
+            // Calculate the day of the week that January 1 falls on
+            var jan1DayOfWeek = (int)jan1.DayOfWeek;
+
+            // Calculate the number of days between January 1 and the first day of the first week
+            var daysToFirstWeekDay = ((int)DayOfWeek.Monday - jan1DayOfWeek + 7) % 7;
+
+            // Calculate the date of the first day of the first week
+            var firstWeekDay = jan1.AddDays(daysToFirstWeekDay);
+
+            // Calculate the start date and end date of the requested week number
+            var startDate = firstWeekDay.AddDays((weekNumber - 1) * 7);
+            var endDate = startDate.AddDays(6);
+
+            return (startDate, endDate);
+        }
+
+        public async Task<List<CrmToRecruitEntity>> GetOpenDealsByWeek(int weekNumber)
+        {
+            CultureInfo ci = CultureInfo.CurrentCulture;
+            Calendar cal = ci.Calendar;
+
+            var (startDate, endDate) = GetStartAndEndDateForWeek(weekNumber);
+
+            var openDeals = await _dbContext.CrmToRecruitEntities
+                .Where(c => c.JobOpeningCreationDate.HasValue && c.JobOpeningCreationDate.Value <= startDate)
+                .ToListAsync();
+
+            var closedDeals = await _dbContext.ClosedDeals
+                .Where(c => c.ClosingDate.HasValue && c.ClosingDate.Value <= endDate)
+                .ToListAsync();
+
+            var openCrmToRecruitList = openDeals.Where(c => !closedDeals.Any(cd => cd.RecordId == c.RecordId))
+                                                //.Select(c => new CrmToRecruitDto { RecordId = c.RecordId, JobOpeningTitle = c. })
+                                                .ToList();
+
+            return openCrmToRecruitList;
+        }
+
+
+        public async Task<List<CrmToRecruitEntity>> GetOpenDealsByWeek2(int weekNumber)
+        {
+            CultureInfo ci = CultureInfo.CurrentCulture;
+            Calendar cal = ci.Calendar;
+
+            var openDeals = await _dbContext.CrmToRecruitEntities
+                .Where(c => c.JobOpeningCreationDate.HasValue)
+                .Where(c => cal.GetWeekOfYear(c.JobOpeningCreationDate.Value, ci.DateTimeFormat.CalendarWeekRule, ci.DateTimeFormat.FirstDayOfWeek) >= weekNumber)
+                .ToListAsync();
+
+            var closedDeals = await _dbContext.ClosedDeals
+                .Where(c => c.ClosingDate.HasValue)
+                .Where(c => cal.GetWeekOfYear(c.ClosingDate.Value, ci.DateTimeFormat.CalendarWeekRule, ci.DateTimeFormat.FirstDayOfWeek) >= weekNumber)
+                .ToListAsync();
+
+            var openCrmToRecruitList = openDeals.Where(c => !closedDeals.Any(cd => cd.RecordId == c.RecordId)).ToList();
+
+            return openDeals;
+        }
+
+        public async Task<List<int>> GetClosedDealsLossReasons()
+        {
+            List<int> lossReasonCounts = new List<int>();
+
+            var year = DateTime.Now.Year;
+            var lossReasons = _dbContext.ClosedDeals
+                .Where(cd => cd.Stage == "Closed (Lost)")
+                .Where(cd => cd.ClosingDate.HasValue && cd.ClosingDate.Value.Year == year)
+                .Select(cd => cd.LossReason);
+
+            int canceledCount = 0, competitorCount = 0, costCount = 0, couldntFindCount = 0, diffDirectionCount = 0, filledByClientCount = 0;
+
+            foreach (var reason in lossReasons)
+            {
+                if (reason.Contains("Canceled"))
+                    canceledCount++;
+                if (reason.Contains("Competitor"))
+                    competitorCount++;
+                if (reason.Contains("Cost"))
+                    costCount++;
+                if (reason.Contains("Couldn’t find"))
+                    couldntFindCount++;
+                if (reason.Contains("Diff direction"))
+                    diffDirectionCount++;
+                if (reason.Contains("Filled by client"))
+                    filledByClientCount++;
+            }
+
+            lossReasonCounts.Add(canceledCount);
+            lossReasonCounts.Add(competitorCount);
+            lossReasonCounts.Add(costCount);
+            lossReasonCounts.Add(couldntFindCount);
+            lossReasonCounts.Add(diffDirectionCount);
+            lossReasonCounts.Add(filledByClientCount);
+
+            return lossReasonCounts;
+        }
+
     }
 }
 

@@ -7,5 +7,7 @@ namespace CrmToRecruit.Repositories
         Task<List<ClosedDealsReportDto>> GenerateMonthlyReport();
         Task SaveClosedDealsList(List<ClosedDealsDto> dealsList);
         Task SaveCrmToRecruitList(List<CrmToRecruitDto> crmToRecruitList);
+        Task<List<int>> GetClosedDealsLossReasons();
+        Task<List<CrmToRecruitEntity>> GetOpenDealsByWeek(int weekNumber);
     }
 }
