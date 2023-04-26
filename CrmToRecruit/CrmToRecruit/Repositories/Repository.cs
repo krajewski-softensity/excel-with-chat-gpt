@@ -147,7 +147,7 @@ namespace CrmToRecruit.Repositories
             var (startDate, endDate) = GetStartAndEndDateForWeek(weekNumber);
 
             var openDeals = await _dbContext.CrmToRecruitEntities
-                .Where(c => c.JobOpeningCreationDate.HasValue && c.JobOpeningCreationDate.Value <= startDate)
+                .Where(c => c.JobOpeningCreationDate.HasValue && c.JobOpeningCreationDate.Value <= endDate)
                 .ToListAsync();
 
             var closedDeals = await _dbContext.ClosedDeals
@@ -155,7 +155,6 @@ namespace CrmToRecruit.Repositories
                 .ToListAsync();
 
             var openCrmToRecruitList = openDeals.Where(c => !closedDeals.Any(cd => cd.RecordId == c.RecordId))
-                                                //.Select(c => new CrmToRecruitDto { RecordId = c.RecordId, JobOpeningTitle = c. })
                                                 .ToList();
 
             return openCrmToRecruitList;

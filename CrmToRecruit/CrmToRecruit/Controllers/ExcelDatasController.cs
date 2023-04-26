@@ -361,7 +361,7 @@ namespace CrmToRecruit.Controllers
 
                     // Set header row
                     var headers = new string[] { "Record ID","Account Name","Deal Name","Deal Owner","QTY","Stage","Job Opening Date","Aging","RM Ownership" };
-                    var headerRange = worksheetPerWeek.Cells["A1:G1"];
+                    var headerRange = worksheetPerWeek.Cells["A1:I1"];
                     //headerRange.Merge = true;
                     headerRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                     headerRange.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
@@ -385,7 +385,7 @@ namespace CrmToRecruit.Controllers
                         c.RmOwnership
                     }).ToList();
 
-                    var dataRange = worksheetPerWeek.Cells["A2:G" + (data.Count + 1)];
+                    var dataRange = worksheetPerWeek.Cells["A2:I" + (data.Count + 1)];
                     dataRange.LoadFromArrays(data);
 
                     // Apply borders to data rows
@@ -431,8 +431,9 @@ namespace CrmToRecruit.Controllers
             int daysOffset = (int)firstDayOfWeek - (int)jan1.DayOfWeek;
 
             DateTime firstWeekDay = jan1.AddDays(daysOffset + (weekNumber - 1) * 7);
+            DateTime lastWeekDay = firstWeekDay.AddDays(6);
 
-            TimeSpan diff = firstWeekDay - dateTime;
+            TimeSpan diff = lastWeekDay - dateTime;
             return diff.Days;
         }
 
