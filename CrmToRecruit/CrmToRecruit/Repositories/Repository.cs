@@ -1,4 +1,5 @@
-﻿using CrmToRecruit.Domain;
+﻿using AutoMapper;
+using CrmToRecruit.Domain;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using System;
@@ -12,10 +13,11 @@ namespace CrmToRecruit.Repositories
     public class Repository : IRepository
     {
         private readonly MyDbContext _dbContext;
-
-        public Repository(MyDbContext dbContext)
+        private readonly IMapper _mapper;
+        public Repository(MyDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         public async Task SaveCrmToRecruitList(List<CrmToRecruitDto> crmToRecruitList)
@@ -139,7 +141,7 @@ namespace CrmToRecruit.Repositories
             return (startDate, endDate);
         }
 
-        public async Task<List<CrmToRecruitEntity>> GetOpenDealsByWeek(int weekNumber)
+        public async Task<List<CrmToRecruitExtendedEntity>> GetOpenDealsByWeek(int weekNumber)
         {
             CultureInfo ci = CultureInfo.CurrentCulture;
             Calendar cal = ci.Calendar;
@@ -151,13 +153,29 @@ namespace CrmToRecruit.Repositories
                 .ToListAsync();
 
             var closedDeals = await _dbContext.ClosedDeals
-                .Where(c => c.ClosingDate.HasValue && c.ClosingDate.Value <= endDate)
+                .Where(c => c.ClosingDate.HasValue && c.ClosingDate.Value <= startDate)
                 .ToListAsync();
 
-            var openCrmToRecruitList = openDeals.Where(c => !closedDeals.Any(cd => cd.RecordId == c.RecordId))
-                                                .ToList();
+            var closedDealsThisWeek = await _dbContext.ClosedDeals
+                .Where(c => c.ClosingDate.HasValue && c.ClosingDate.Value >= startDate && c.ClosingDate.Value <= endDate)
+                .ToListAsync();
 
-            return openCrmToRecruitList;
+            var openCrmToRecruitList = _mapper.Map<List<CrmToRecruitExtendedEntity>>(openDeals);
+
+            var openCrmToRecruitListResult = openCrmToRecruitList
+                .Where(c => !closedDeals.Any(cd => cd.RecordId == c.RecordId))
+                .Select(c =>
+                {
+                    var matchingClosedDeal = closedDealsThisWeek.FirstOrDefault(cdw => cdw.RecordId == c.RecordId);
+                    if (matchingClosedDeal != null)
+                    {
+                        c.StageOfClosed = matchingClosedDeal.Stage;
+                        c.ClosingDate = matchingClosedDeal.ClosingDate;
+                    }
+                    return c;
+                }).ToList();
+
+            return openCrmToRecruitListResult;
         }
 
 
@@ -219,6 +237,77 @@ namespace CrmToRecruit.Repositories
             return lossReasonCounts;
         }
 
+        public async Task<Dictionary<string, int>> GetCompaniesRecruitInfo()
+        {
+            var vendorTotals = new Dictionary<string, int>();
+
+            var crmToRecruitList = await _dbContext.CrmToRecruitEntities.ToListAsync();
+
+            foreach (var crm in crmToRecruitList)
+            {
+                // Process Submitted vendors
+                if (crm.SubmittedVendor != null)
+                {
+                    var splitValues = crm.SubmittedVendor.Split('-');
+                    var vendorName = splitValues[0];
+                    if (vendorTotals.ContainsKey(vendorName))
+                    {
+                        vendorTotals[vendorName] += int.Parse(splitValues[1]);
+                    }
+                    else
+                    {
+                        vendorTotals.Add(vendorName, int.Parse(splitValues[1]));
+                    }
+                }
+
+                // Process Interviewed vendors
+                if (crm.InterviewedVendor != null)
+                {
+                    var splitValues = crm.InterviewedVendor.Split('-');
+                    var vendorName = splitValues[0];
+                    if (vendorTotals.ContainsKey(vendorName))
+                    {
+                        vendorTotals[vendorName] += int.Parse(splitValues[1]);
+                    }
+                    else
+                    {
+                        vendorTotals.Add(vendorName, int.Parse(splitValues[1]));
+                    }
+                }
+
+                // Process Confirmed vendors
+                if (crm.ConfirmedVendor != null)
+                {
+                    var splitValues = crm.ConfirmedVendor.Split('-');
+                    var vendorName = splitValues[0];
+                    if (vendorTotals.ContainsKey(vendorName))
+                    {
+                        vendorTotals[vendorName] += int.Parse(splitValues[1]);
+                    }
+                    else
+                    {
+                        vendorTotals.Add(vendorName, int.Parse(splitValues[1]));
+                    }
+                }
+
+                // Process Rejected vendors
+                if (crm.RejectedVendor != null)
+                {
+                    var splitValues = crm.RejectedVendor.Split('-');
+                    var vendorName = splitValues[0];
+                    if (vendorTotals.ContainsKey(vendorName))
+                    {
+                        vendorTotals[vendorName] += int.Parse(splitValues[1]);
+                    }
+                    else
+                    {
+                        vendorTotals.Add(vendorName, int.Parse(splitValues[1]));
+                    }
+                }
+            }
+
+            return vendorTotals;
+        }
     }
 }
 

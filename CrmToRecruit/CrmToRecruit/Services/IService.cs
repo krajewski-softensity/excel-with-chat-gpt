@@ -8,6 +8,7 @@ namespace CrmToRecruit.Services
         public Task<List<ClosedDealsDto>> ReadExcelFileClosedDeals(Stream stream);
         public Task<List<ClosedDealsReportDto>> GenerateMonthlyReport();
         public Task<List<int>> GetClosedDealsLossReasons();
-        public Task<List<CrmToRecruitEntity>> GetOpenDealsByWeek(int weekNumber);
+        public Task<List<CrmToRecruitExtendedEntity>> GetOpenDealsByWeek(int weekNumber);
+        public Task<Dictionary<string, int>> GetCompaniesRecruitInfo();
     }
 }

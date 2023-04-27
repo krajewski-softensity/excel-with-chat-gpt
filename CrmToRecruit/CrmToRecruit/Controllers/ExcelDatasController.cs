@@ -360,8 +360,10 @@ namespace CrmToRecruit.Controllers
                     weekSheets.Add((weekNumber, worksheetPerWeek));
 
                     // Set header row
-                    var headers = new string[] { "Record ID","Account Name","Deal Name","Deal Owner","QTY","Stage","Job Opening Date","Aging","RM Ownership" };
-                    var headerRange = worksheetPerWeek.Cells["A1:I1"];
+                    var headers = new string[] { 
+                        "Record ID","Account Name","Deal Name","Deal Owner","QTY","Open Stage",
+                        "Job Opening Date","Aging","RM Ownership","Closed Stage","Closing Date" };
+                    var headerRange = worksheetPerWeek.Cells["A1:K1"];
                     //headerRange.Merge = true;
                     headerRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                     headerRange.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
@@ -378,14 +380,16 @@ namespace CrmToRecruit.Controllers
                         c.AccountName,
                         c.DealName,
                         c.DealOwner,
-                        c.StageOfOpen,
                         c.NumberOfResources?.ToString(),
+                        c.StageOfOpen,
                         c.JobOpeningCreationDate.Value.ToLongDateString(),
                         GetAgeByDateTimeAndWeek(c.JobOpeningCreationDate.Value, weekNumber),
-                        c.RmOwnership
+                        c.RmOwnership,
+                        c.StageOfClosed,
+                        c.ClosingDate?.ToLongDateString()
                     }).ToList();
 
-                    var dataRange = worksheetPerWeek.Cells["A2:I" + (data.Count + 1)];
+                    var dataRange = worksheetPerWeek.Cells["A2:K" + (data.Count + 1)];
                     dataRange.LoadFromArrays(data);
 
                     // Apply borders to data rows
@@ -396,6 +400,30 @@ namespace CrmToRecruit.Controllers
 
                     // Auto-fit columns
                     worksheetPerWeek.Cells.AutoFitColumns();
+
+                    // set conditional formatting for StageOfClosed = "X"
+                    for (int row = 2; row <= data.Count + 1; row++)
+                    {
+                        // Get the value of the StageOfClosed cell
+                        var stageOfClosedCell = worksheetPerWeek.Cells[row, 10];
+                        var stageOfClosedValue = stageOfClosedCell.Value?.ToString() ?? "";
+
+                        // If the value is Won, then highlight cells A to I for this row
+                        if (stageOfClosedValue.Contains("(Won)"))
+                        {
+                            var range = worksheetPerWeek.Cells[row, 1, row, 11];
+                            range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                            range.Style.Fill.BackgroundColor.SetColor(Color.YellowGreen);
+                        }
+
+                        // If the value is Lost, then highlight cells A to I for this row
+                        if (stageOfClosedValue.Contains("(Lost)"))
+                        {
+                            var range = worksheetPerWeek.Cells[row, 1, row, 11];
+                            range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                            range.Style.Fill.BackgroundColor.SetColor(Color.OrangeRed);
+                        }
+                    }
                 }
             }
 
