@@ -343,6 +343,68 @@ namespace CrmToRecruit.Controllers
 
             //---------------------------------------------------------------------------------
 
+            //var worksheetVendors = package.Workbook.Worksheets.Add("Vendors");
+
+            //var vendorTotals = _service.GetCompaniesRecruitInfo().Result;
+
+            //// Define the rows and columns of the table
+            //var rows = new string[] { "Submitted", "Interviewed", "Confirmed", "Rejected", "Efficiency", "Interview efficiency" };
+            //var columns = vendorTotals.Select(v => v.Name).ToArray();
+
+            //// Add the rows to the worksheet
+            //for (int i = 0; i < rows.Length; i++)
+            //{
+            //    worksheetVendors.Cells[i + 1, 1].Value = rows[i];
+            //}
+
+            //// Add the columns to the worksheet
+            //for (int j = 0; j < columns.Length; j++)
+            //{
+            //    worksheetVendors.Cells[1, j + 2].Value = columns[j];
+            //}
+
+            //// Add the data to the worksheet
+            //for (int i = 0; i < rows.Length; i++)
+            //{
+            //    for (int j = 0; j < columns.Length; j++)
+            //    {
+            //        string vendorName = columns[j];
+            //        double vendorTotal = 0;
+
+            //        Vendor vendor = vendorTotals.FirstOrDefault(v => v.Name == vendorName);
+
+            //        if (vendor != null)
+            //        {
+            //            switch (rows[i])
+            //            {
+            //                case "Submitted":
+            //                    vendorTotal = vendor.Submitted;
+            //                    break;
+            //                case "Interviewed":
+            //                    vendorTotal = vendor.Interviewed;
+            //                    break;
+            //                case "Confirmed":
+            //                    vendorTotal = vendor.Confirmed;
+            //                    break;
+            //                case "Rejected":
+            //                    vendorTotal = vendor.Rejected;
+            //                    break;
+            //                case "Efficiency":
+            //                    vendorTotal = vendor.Efficiency;
+            //                    break;
+            //                case "Interview efficiency":
+            //                    vendorTotal = vendor.InterviewEfficiency;
+            //                    break;
+            //            }
+            //        }
+
+            //        worksheetVendors.Cells[i + 2, j + 2].Value = vendorTotal;
+            //    }
+            //}
+
+
+            //---------------------------------------------------------------------------------
+
             CultureInfo ci = CultureInfo.CurrentCulture;
             Calendar cal = ci.Calendar;
             var currentWeekNumber = cal.GetWeekOfYear(DateTime.Now, ci.DateTimeFormat.CalendarWeekRule, ci.DateTimeFormat.FirstDayOfWeek);

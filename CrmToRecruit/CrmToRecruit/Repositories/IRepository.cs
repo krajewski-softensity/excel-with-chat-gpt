@@ -9,6 +9,6 @@ namespace CrmToRecruit.Repositories
         Task SaveCrmToRecruitList(List<CrmToRecruitDto> crmToRecruitList);
         Task<List<int>> GetClosedDealsLossReasons();
         Task<List<CrmToRecruitExtendedEntity>> GetOpenDealsByWeek(int weekNumber);
-        Task<Dictionary<string, int>> GetCompaniesRecruitInfo();
+        Task<List<Vendor>> GetCompaniesRecruitInfo();
     }
 }

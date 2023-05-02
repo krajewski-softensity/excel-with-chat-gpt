@@ -237,9 +237,9 @@ namespace CrmToRecruit.Repositories
             return lossReasonCounts;
         }
 
-        public async Task<Dictionary<string, int>> GetCompaniesRecruitInfo()
+        public async Task<List<Vendor>> GetCompaniesRecruitInfo()
         {
-            var vendorTotals = new Dictionary<string, int>();
+            var vendorTotals = new List<Vendor>();
 
             var crmToRecruitList = await _dbContext.CrmToRecruitEntities.ToListAsync();
 
@@ -250,13 +250,14 @@ namespace CrmToRecruit.Repositories
                 {
                     var splitValues = crm.SubmittedVendor.Split('-');
                     var vendorName = splitValues[0];
-                    if (vendorTotals.ContainsKey(vendorName))
+                    Vendor? currentVendor = vendorTotals.SingleOrDefault(v => v.Name == vendorName);
+                    if (currentVendor != null)
                     {
-                        vendorTotals[vendorName] += int.Parse(splitValues[1]);
+                        currentVendor.Submitted += int.Parse(splitValues[1]);
                     }
                     else
                     {
-                        vendorTotals.Add(vendorName, int.Parse(splitValues[1]));
+                        vendorTotals.Add(new Vendor() { Name = vendorName, Submitted = int.Parse(splitValues[1]) });
                     }
                 }
 
@@ -265,13 +266,14 @@ namespace CrmToRecruit.Repositories
                 {
                     var splitValues = crm.InterviewedVendor.Split('-');
                     var vendorName = splitValues[0];
-                    if (vendorTotals.ContainsKey(vendorName))
+                    Vendor? currentVendor = vendorTotals.SingleOrDefault(v => v.Name == vendorName);
+                    if (currentVendor != null)
                     {
-                        vendorTotals[vendorName] += int.Parse(splitValues[1]);
+                        currentVendor.Interviewed += int.Parse(splitValues[1]);
                     }
                     else
                     {
-                        vendorTotals.Add(vendorName, int.Parse(splitValues[1]));
+                        vendorTotals.Add(new Vendor() { Name = vendorName, Interviewed = int.Parse(splitValues[1]) });
                     }
                 }
 
@@ -280,13 +282,14 @@ namespace CrmToRecruit.Repositories
                 {
                     var splitValues = crm.ConfirmedVendor.Split('-');
                     var vendorName = splitValues[0];
-                    if (vendorTotals.ContainsKey(vendorName))
+                    Vendor? currentVendor = vendorTotals.SingleOrDefault(v => v.Name == vendorName);
+                    if (currentVendor != null)
                     {
-                        vendorTotals[vendorName] += int.Parse(splitValues[1]);
+                        currentVendor.Confirmed += int.Parse(splitValues[1]);
                     }
                     else
                     {
-                        vendorTotals.Add(vendorName, int.Parse(splitValues[1]));
+                        vendorTotals.Add(new Vendor() { Name = vendorName, Confirmed = int.Parse(splitValues[1]) });
                     }
                 }
 
@@ -295,13 +298,14 @@ namespace CrmToRecruit.Repositories
                 {
                     var splitValues = crm.RejectedVendor.Split('-');
                     var vendorName = splitValues[0];
-                    if (vendorTotals.ContainsKey(vendorName))
+                    Vendor? currentVendor = vendorTotals.SingleOrDefault(v => v.Name == vendorName);
+                    if (currentVendor != null)
                     {
-                        vendorTotals[vendorName] += int.Parse(splitValues[1]);
+                        currentVendor.Rejected += int.Parse(splitValues[1]);
                     }
                     else
                     {
-                        vendorTotals.Add(vendorName, int.Parse(splitValues[1]));
+                        vendorTotals.Add(new Vendor() { Name = vendorName, Rejected = int.Parse(splitValues[1]) });
                     }
                 }
             }

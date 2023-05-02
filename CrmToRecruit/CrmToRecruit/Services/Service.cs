@@ -142,7 +142,7 @@ namespace CrmToRecruit.Services
             return await _repository.GetOpenDealsByWeek(weekNumber);
         }
 
-        public async Task<Dictionary<string, int>> GetCompaniesRecruitInfo()
+        public async Task<List<Vendor>> GetCompaniesRecruitInfo()
         {
             return await _repository.GetCompaniesRecruitInfo();
         }
